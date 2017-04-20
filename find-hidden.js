@@ -4,10 +4,8 @@ const jsdom = require('jsdom')
 const { walk } = require('walk')
 const fs = require('fs')
 const argv = require('yargs')
-  .usage('Usage: $0 <directory> [--url=<base_name>]')
-  .demandCommand(1)
-  .demandOption(['url'])
-  .alias('u', 'url')
+  .usage('Usage: $0 <dump directory> <site basename>')
+  .demandCommand(2)
   .argv
 
 const path = require('path')
@@ -16,6 +14,7 @@ const debug = require('debug')('scraper')
 const fields = []
 
 const rootpath = argv._[0]
+const url = argv._[1]
 const walker = walk(rootpath, {followLinks: true})
 
 function report (field) {
@@ -23,7 +22,7 @@ function report (field) {
   console.log(field.url, field.name, field.form_action ? field.form_action : '')
 }
 
-console.log('url field_name form_action')
+console.log('url\tfield_name\tform_action')
 
 walker.on('file', (root, fileStats, next) => {
   const filepath = path.join(root, fileStats.name)
@@ -51,7 +50,6 @@ walker.on('file', (root, fileStats, next) => {
               for (let j = 0; j < forms.length; j++) {
                 if (forms[j] === parent[0]) {
                   form = $(forms[j])
-                  debug('form', j, 'is parent!')
                 }
               }
             } while (!form && parent.parent() && parent.parent().length !== 0)
@@ -60,15 +58,14 @@ walker.on('file', (root, fileStats, next) => {
           }
 
           fields.push({
-            url: argv.url + path.join('/', relativefilepath),
+            url: url + path.join('/', relativefilepath),
             id: elem.attr('id'),
             name: elem.attr('name'),
             val: elem.val(),
-            form_action: form ? form.attr('action'): ''
+            form_action: form ? form.attr('action') : ''
           })
           report(fields[fields.length - 1])
         }
-        debug(fields)
       }
     })
   })

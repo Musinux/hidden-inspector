@@ -1,6 +1,9 @@
 {
+  "bin": {
+    "hiddenfields": "find-hidden.js"
+  },
   "name": "web-scraper",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Dump websites and find forms with hidden fields",
   "main": "index.js",
   "scripts": {
